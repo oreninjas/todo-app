@@ -6,16 +6,27 @@ dbConnection();
 const app = express();
 
 const userModel = require("./model/user.model");
+const todoModel = require("./model/todo.model");
 const cookieChecker = require("./validations/cookie.check");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const expressSession = require("express-session");
+const flash = require("connect-flash");
 
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(
+  expressSession({
+    secret: process.env.EXPRESS_SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(flash());
 
 app.get("/", (req, res) => {
   res.redirect("/dashboard");
@@ -45,7 +56,8 @@ app.post("/create/user", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login");
+  const msg = req.flash("msg");
+  res.render("login", { msg });
 });
 
 app.post("/login", async (req, res) => {
@@ -54,7 +66,8 @@ app.post("/login", async (req, res) => {
   const findLoginData = await userModel.findOne({ email: email });
 
   if (!findLoginData) {
-    return res.send("Something went wrong.");
+    let msg = req.flash("msg")[0] || "Welcome back!";
+    return res.redirect("/login", { msg });
   }
 
   const comparePassword = await bcrypt.compare(
@@ -68,6 +81,9 @@ app.post("/login", async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
     res.redirect("/dashboard");
+  } else {
+    req.flash("msg", "Something went wrong!");
+    res.redirect("/login");
   }
 });
 
@@ -82,7 +98,9 @@ app.get("/dashboard", cookieChecker, async (req, res) => {
     .findOne({ email: userEmail })
     .select("-password");
 
-  res.render("dashboard");
+  let userName = user.username;
+
+  res.render("dashboard", { userName });
 });
 
 app.post("/create/todo", cookieChecker, async (req, res) => {
@@ -91,20 +109,33 @@ app.post("/create/todo", cookieChecker, async (req, res) => {
 
   const userData = await userModel.findOne({ email: userEmail });
 
-  userData.todo.push({
+  const newTodo = await todoModel.create({
     title,
     description,
+    user: userData._id,
   });
-  await userData.save();
+
+  userData.todo.push(newTodo._id);
+  userData.save();
+
   res.redirect("/dashboard/todos");
 });
 
-app.get('/dashboard/todos', cookieChecker, async (req, res)=>{
+app.get("/dashboard/todos", cookieChecker, async (req, res) => {
   const userEmail = req.user;
-  const user = await userModel.findOne({email: userEmail});
-  const userTodos = user.todos || [];
+  const user = await userModel.findOne({ email: userEmail });
+
+  const userTodos = user.todo || [];
+
+  const todos = await todoModel.find({ user: user._id })
   
-  res.render('todos', {userTodos})
+  res.render("todos", { todos: todos });
+});
+
+app.get('/dashboard/todos/edit/:id', (req, res)=>{
+  let params = req.params.id;
+
+  res.render('editTodo')
 })
 
 app.listen(3000);

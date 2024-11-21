@@ -9,7 +9,7 @@
   <body>
     <div class="h-screen bg-zinc-900 md:p-5 text-white">
       <nav class="flex justify-between p-5">
-        <h2 class="text-2xl">iFaiyan</h2>
+        <h2 class="text-2xl cursor-pointer"><a href="/">iFaiyan</a></h2>
         <div class="flex gap-5 md:gap-20 items-center">
           <a href="/dashboard/todos">Todos</a>
           <button class="bg-red-500 rounded-md px-5 py-3">
@@ -19,24 +19,53 @@
       </nav>
 
       <div class="p-2 text-white">
-        <h2 class="text-2xl">Create a Todo</h2>
+        <h2 class="text-2xl">
+          Hi <span class="text-blue-400"><%= userName %></span>, Create a Todo
+        </h2>
         <form class="flex flex-col" action="/create/todo" method="post">
           <input
-            class="md:rounded-md py-3 px-4 bg-transparent border border-zinc-700 mt-3"
+            class="md:rounded-md inline-block py-3 px-4 bg-transparent border border-zinc-700 mt-3"
             type="text"
             name="title"
             placeholder="title"
+            required
+            autocomplete="off"
           />
           <textarea
             class="md:rounded-md py-3 px-4 bg-transparent h-48 md:h-32 border border-zinc-700 mt-5 resize-none"
             name="description"
             placeholder="description"
+            required
+            autocomplete="off"
           ></textarea>
-          <input class="bg-emerald-500 mt-5 rounded-sm py-3 md:text-2x cursor-pointer hover:bg-emerald-600 transition-colors duration-300 ease-in" type="submit" value="Create Todo" />
+          <div class="mx-6 mt-4">
+            <input
+              class="c-b inline-block scale-150"
+              type="checkbox"
+              name="encrypt"
+            />
+            <p class="inline-block ml-2">Add Encryption</p>
+            <div class="encryptInput hidden">
+              <p>Password: </p>
+              <input class="bg-transparent border-2 border-indigo-200 rounded-sm px-3 py-2" type="password" name="encryPass"/>
+            </div>
+          </div>
+          <input
+            class="bg-emerald-500 mt-5 rounded-sm py-3 md:text-2x cursor-pointer hover:bg-emerald-600 transition-colors duration-300 ease-in"
+            type="submit"
+            value="Create Todo"
+          />
         </form>
         <p class="mt-3">New features coming soon!</p>
       </div>
-      
     </div>
+
+    <script>
+      let encryptInput = document.querySelector('.encryptInput');
+      let checkbox = document.querySelector('.c-b');
+      checkbox.addEventListener('change', ()=>{
+        encryptInput.style.display = checkbox.checked ? 'block' : 'none'
+      })
+    </script>
   </body>
 </html>

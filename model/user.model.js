@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema({
   },
   todo: [
     {
-      title: String,
-      description: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'todo'
     },
   ],
 });
