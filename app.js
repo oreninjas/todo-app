@@ -127,15 +127,45 @@ app.get("/dashboard/todos", cookieChecker, async (req, res) => {
 
   const userTodos = user.todo || [];
 
-  const todos = await todoModel.find({ user: user._id })
-  
+  const todos = await todoModel.find({ user: user._id });
+
   res.render("todos", { todos: todos });
 });
 
-app.get('/dashboard/todos/edit/:id', (req, res)=>{
+app.get("/dashboard/todos/edit/:id", cookieChecker, async (req, res) => {
   let params = req.params.id;
+  let userEmail = req.user;
+  const user = await userModel.findOne({ email: userEmail });
+  const todo = await todoModel.findOne({ _id: params, user: user._id });
 
-  res.render('editTodo')
-})
+  res.render("editTodo", { todo });
+});
+
+app.post("/dashboard/todos/edit/:id", cookieChecker, async (req, res) => {
+  let param = req.params.id;
+  let userEmail = req.user;
+  let user = await userModel.findOne({ email: userEmail });
+  const { title, description } = req.body;
+  await todoModel.findOneAndUpdate(
+    { _id: param, user: user._id },
+    { title, description },
+    { new: true }
+  );
+
+  res.redirect("/dashboard/todos");
+});
+
+app.get("/dashboard/todos/delete/:id", cookieChecker, async (req, res) => {
+  let params = req.params.id;
+  let userEmail = req.user;
+
+  const user = await userModel.findOne({ email: userEmail });
+
+  const deletTodo = await todoModel.findOneAndDelete({
+    _id: params,
+    user: user._id,
+  });
+  res.redirect("/dashboard/todos");
+});
 
 app.listen(3000);

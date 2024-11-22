@@ -7,27 +7,37 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-
     <div class="h-screen w-full text-white">
       <nav class="bg-zinc-800 h-[10vh] px-5 flex items-center text-white">
         <h2><a href="/dashboard">Go back!</a></h2>
       </nav>
-      
+
       <div class="h-[90vh] w-full bg-zinc-800 p-5 flex gap-10 flex-wrap">
-        <% if (todos.length > 0){ %>
-          <% todos.forEach(function(todo){ %>
-            <div class="w-fit h-fit bg-zinc-900 px-5 py-3 rounded cursor-pointer">
-              <h2 class="text-xl font-light"><%= todo.title %></h2>
-              <p class="text-gray-400 font-light"><%= todo.description %></p>
-              <a href="/dashboard/todos/edit/:<%= todo._id %>" class="text-blue-500 mt-5">edit</a>
-            </div>
-          <% }) %>
-        <% }else{ %>
-              <div>There's no todo yet!! Go to <a class="text-blue-500" href="/dashboard">dashboard</a> and create a todo.</div>
-            <% } %>
+        <% if (todos.length > 0){ %> <% todos.forEach(function(todo){ %>
+        <div class="w-fit h-fit bg-zinc-900 px-5 py-3 rounded cursor-pointer">
+          <h2 class="text-xl font-light"><%= todo.title %></h2>
+          <p class="text-gray-400 font-light"><%= todo.description %></p>
+          <div class="flex gap-10 mt-5">
+            <a
+              href="/dashboard/todos/edit/<%= todo._id %>"
+              class="text-blue-500"
+              >edit</a
+            >
+            <a
+              href="/dashboard/todos/delete/<%= todo._id %>"
+              class="text-red-500"
+              >delete</a
+            >
+          </div>
+        </div>
+        <% }) %> <% }else{ %>
+        <div>
+          There's no todo yet!! Go to
+          <a class="text-blue-500" href="/dashboard">dashboard</a> and create a
+          todo.
+        </div>
+        <% } %>
       </div>
-
     </div>
-
   </body>
 </html>
