@@ -104,19 +104,35 @@ app.get("/dashboard", cookieChecker, async (req, res) => {
 });
 
 app.post("/create/todo", cookieChecker, async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, encrypt, encryPass } = req.body;
   const userEmail = req.user;
+
+  const isEncrypt = encrypt === "on" || encrypt === true;
 
   const userData = await userModel.findOne({ email: userEmail });
 
-  const newTodo = await todoModel.create({
-    title,
-    description,
-    user: userData._id,
-  });
+  if (encrypt === "on") {
+    let saltRounds = await bcrypt.genSalt(10);
+    let hashedEncryPassword = await bcrypt.hash(encryPass, saltRounds);
 
-  userData.todo.push(newTodo._id);
-  userData.save();
+    const newTodo = await todoModel.create({
+      title,
+      description,
+      user: userData._id,
+      encrypted: isEncrypt,
+      encryPass: hashedEncryPassword,
+    });
+    userData.todo.push(newTodo._id);
+    userData.save();
+  } else {
+    const newTodo = await todoModel.create({
+      title,
+      description,
+      user: userData._id,
+    });
+    userData.todo.push(newTodo._id);
+    userData.save();
+  }
 
   res.redirect("/dashboard/todos");
 });
