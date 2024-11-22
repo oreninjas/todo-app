@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Todo App - Faiyan</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
@@ -14,7 +14,7 @@
 
       <div class="h-[90vh] w-full bg-zinc-800 p-5 flex gap-10 flex-wrap">
         <% if (todos.length > 0){ %> <% todos.forEach(function(todo){ %>
-        <div class="w-fit h-fit bg-zinc-900 px-5 py-3 rounded cursor-pointer">
+        <div class="w-fit h-fit bg-zinc-900 px-5 py-3 rounded">
           <h2 class="text-xl font-light"><%= todo.title %></h2>
           <p class="text-gray-400 font-light"><%= todo.description %></p>
           <div class="flex gap-10 mt-5">
