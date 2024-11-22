@@ -125,7 +125,7 @@ app.get("/dashboard/todos", cookieChecker, async (req, res) => {
   const userEmail = req.user;
   const user = await userModel.findOne({ email: userEmail });
 
-  const userTodos = user.todo || [];
+  // const userTodos = user.todo || [];
 
   const todos = await todoModel.find({ user: user._id });
 
@@ -160,11 +160,17 @@ app.get("/dashboard/todos/delete/:id", cookieChecker, async (req, res) => {
   let userEmail = req.user;
 
   const user = await userModel.findOne({ email: userEmail });
+  if (!user) {
+    return res.redirect("/");
+  }
 
-  const deletTodo = await todoModel.findOneAndDelete({
+  const deleteTodo = await todoModel.findOneAndDelete({
     _id: params,
     user: user._id,
   });
+
+  await userModel.updateOne({ _id: user._id }, { $pull: { todo: params } });
+
   res.redirect("/dashboard/todos");
 });
 
